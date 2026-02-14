@@ -100,7 +100,7 @@ msg "Installing base system with pacstrap"
 
 pacstrap -K "${MOUNT}" \
     base base-devel linux linux-headers linux-firmware \
-    intel-ucode btrfs-progs ansible git
+    intel-ucode btrfs-progs ansible python-passlib git
 
 # --- Step 7: Generate fstab ---
 msg "Generating fstab"
