@@ -17,7 +17,7 @@
     state: absent
 
 - name: Create snapper config for root
-  command: snapper -c root create-config /
+  command: snapper --no-dbus -c root create-config /
   args:
     creates: /etc/snapper/configs/root
 
