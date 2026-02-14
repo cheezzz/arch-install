@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  become: true
+  vars_files:
+    - vars/main.yml
+  vars_prompt:
+    - name: user_password
+      prompt: "Password (used for both root and {{ username }})"
+      private: true
+      confirm: true
+  roles:
+    - base
+    - bootloader
+    - snapshots
+    - audio
+    - desktop
+    - packages

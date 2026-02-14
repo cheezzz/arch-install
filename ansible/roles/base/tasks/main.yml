@@ -1,0 +1,82 @@
+---
+- name: Install base packages
+  pacman:
+    name:
+      - networkmanager
+      - sudo
+    state: present
+
+- name: Set timezone
+  file:
+    src: "/usr/share/zoneinfo/{{ timezone }}"
+    dest: /etc/localtime
+    state: link
+    force: true
+
+- name: Sync hardware clock
+  command: hwclock --systohc
+  changed_when: false
+
+- name: Configure locale in locale.gen
+  lineinfile:
+    path: /etc/locale.gen
+    regexp: "^#?{{ locale | regex_escape() }}"
+    line: "{{ locale }} UTF-8"
+  register: locale_gen_config
+
+- name: Generate locale
+  command: locale-gen
+  when: locale_gen_config.changed
+
+- name: Set LANG in locale.conf
+  copy:
+    content: "LANG={{ locale }}\n"
+    dest: /etc/locale.conf
+
+- name: Set keymap in vconsole.conf
+  copy:
+    content: "KEYMAP={{ keymap }}\n"
+    dest: /etc/vconsole.conf
+
+- name: Set hostname
+  copy:
+    content: "{{ hostname }}\n"
+    dest: /etc/hostname
+
+- name: Configure /etc/hosts
+  copy:
+    content: |
+      127.0.0.1  localhost
+      ::1        localhost
+      127.0.1.1  {{ hostname }}.localdomain  {{ hostname }}
+    dest: /etc/hosts
+
+- name: Set root password
+  user:
+    name: root
+    password: "{{ user_password | password_hash('sha512') }}"
+
+- name: Create user {{ username }}
+  user:
+    name: "{{ username }}"
+    groups: wheel
+    append: true
+    shell: /bin/bash
+    create_home: false
+
+- name: Set user password
+  user:
+    name: "{{ username }}"
+    password: "{{ user_password | password_hash('sha512') }}"
+
+- name: Configure sudo for wheel group
+  lineinfile:
+    path: /etc/sudoers
+    regexp: "^#? *%wheel ALL=\\(ALL:ALL\\) ALL"
+    line: "%wheel ALL=(ALL:ALL) ALL"
+    validate: "visudo -cf %s"
+
+- name: Enable NetworkManager
+  systemd:
+    name: NetworkManager
+    enabled: true

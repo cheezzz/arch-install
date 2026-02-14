@@ -1,0 +1,8 @@
+disk: /dev/nvme0n1
+home_device: /dev/sdX          # operator fills this in before running
+hostname: linux
+username: johlan
+timezone: Africa/Johannesburg
+locale: en_ZA.UTF-8
+keymap: us
+aur_helper: paru

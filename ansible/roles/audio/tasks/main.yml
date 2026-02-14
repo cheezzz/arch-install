@@ -1,0 +1,12 @@
+---
+- name: Install PipeWire packages
+  pacman:
+    name:
+      - pipewire
+      - pipewire-alsa
+      - pipewire-pulse
+      - pipewire-jack
+      - wireplumber
+    state: present
+# PipeWire services are socket-activated on Arch and start
+# automatically on user login — no explicit enable step needed.

@@ -1,0 +1,35 @@
+---
+- name: Install bootloader packages
+  pacman:
+    name:
+      - grub
+      - efibootmgr
+      - grub-btrfs
+    state: present
+
+- name: Install GRUB to EFI
+  command: >
+    grub-install
+    --target=x86_64-efi
+    --efi-directory=/boot/efi
+    --bootloader-id=GRUB
+
+- name: Set GRUB_CMDLINE_LINUX
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX="[^"]*"'
+    line: 'GRUB_CMDLINE_LINUX="rootflags=subvol=@ nvidia-drm.modeset=1"'
+
+- name: Enable GRUB_DISABLE_SUBMENU
+  lineinfile:
+    path: /etc/default/grub
+    regexp: "^#?GRUB_DISABLE_SUBMENU="
+    line: "GRUB_DISABLE_SUBMENU=y"
+
+- name: Generate GRUB config
+  command: grub-mkconfig -o /boot/grub/grub.cfg
+
+- name: Enable grub-btrfsd service
+  systemd:
+    name: grub-btrfsd
+    enabled: true

@@ -1,0 +1,186 @@
+---
+# --- Pacman configuration ---
+
+- name: Enable Color in pacman.conf
+  lineinfile:
+    path: /etc/pacman.conf
+    regexp: "^#?Color"
+    line: "Color"
+
+- name: Enable ParallelDownloads in pacman.conf
+  lineinfile:
+    path: /etc/pacman.conf
+    regexp: "^#?ParallelDownloads"
+    line: "ParallelDownloads = 10"
+
+- name: Enable multilib repository
+  replace:
+    path: /etc/pacman.conf
+    regexp: '^#\[multilib\]\n#Include = /etc/pacman.d/mirrorlist'
+    replace: '[multilib]\nInclude = /etc/pacman.d/mirrorlist'
+
+- name: Update pacman database after config changes
+  pacman:
+    update_cache: true
+
+# --- zram ---
+
+- name: Install zram-generator
+  pacman:
+    name: zram-generator
+    state: present
+
+- name: Configure zram
+  copy:
+    content: |
+      [zram0]
+      zram-size = ram / 2
+      compression-algorithm = zstd
+    dest: /etc/systemd/zram-generator.conf
+
+# --- Fonts ---
+
+- name: Install fonts
+  pacman:
+    name:
+      - inter-font
+      - noto-fonts
+      - noto-fonts-emoji
+      - ttf-jetbrains-mono-nerd
+    state: present
+
+- name: Configure fontconfig for macOS-like rendering
+  copy:
+    content: |
+      <?xml version="1.0"?>
+      <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+      <fontconfig>
+        <!-- Antialiasing -->
+        <match target="font">
+          <edit name="antialias" mode="assign"><bool>true</bool></edit>
+        </match>
+
+        <!-- Hinting -->
+        <match target="font">
+          <edit name="hinting" mode="assign"><bool>true</bool></edit>
+          <edit name="hintstyle" mode="assign"><const>hintslight</const></edit>
+        </match>
+
+        <!-- Subpixel rendering -->
+        <match target="font">
+          <edit name="rgba" mode="assign"><const>rgb</const></edit>
+          <edit name="lcdfilter" mode="assign"><const>lcddefault</const></edit>
+        </match>
+
+        <!-- Default sans-serif -->
+        <alias>
+          <family>sans-serif</family>
+          <prefer><family>Inter</family></prefer>
+        </alias>
+
+        <!-- Default monospace -->
+        <alias>
+          <family>monospace</family>
+          <prefer><family>JetBrains Mono Nerd Font</family></prefer>
+        </alias>
+      </fontconfig>
+    dest: /etc/fonts/local.conf
+
+# --- Common tools ---
+
+- name: Install common tools
+  pacman:
+    name:
+      - git
+      - curl
+      - wget
+      - htop
+      - btop
+      - bash-completion
+      - gvfs
+      - gvfs-smb
+      - ntfs-3g
+      - xdg-user-dirs
+      - xdg-utils
+      - jq
+      - tree
+      - vim
+      - kitty
+    state: present
+
+# --- Applications ---
+
+- name: Install applications
+  pacman:
+    name:
+      - libreoffice-fresh
+      - celluloid
+      - file-roller
+      - p7zip
+      - unzip
+      - zip
+    state: present
+
+# --- Dev tools (pacman) ---
+
+- name: Install dev tools from official repos
+  pacman:
+    name:
+      - aws-cli-v2
+      - uv
+      - bun
+    state: present
+
+# --- AUR helper (paru) ---
+
+- name: Clone paru from AUR
+  git:
+    repo: https://aur.archlinux.org/paru.git
+    dest: "/tmp/paru"
+    version: master
+  become: true
+  become_user: "{{ username }}"
+  become_method: su
+
+- name: Build and install paru
+  command: makepkg -si --noconfirm
+  args:
+    chdir: /tmp/paru
+  become: true
+  become_user: "{{ username }}"
+  become_method: su
+
+- name: Clean up paru build directory
+  file:
+    path: /tmp/paru
+    state: absent
+
+# --- Claude Code ---
+
+- name: Install Claude Code
+  command: bash -c "curl -fsSL https://claude.ai/install.sh | bash"
+  become: true
+  become_user: "{{ username }}"
+  become_method: su
+
+# --- Flatpak ---
+
+- name: Install flatpak
+  pacman:
+    name: flatpak
+    state: present
+
+- name: Add Flathub remote
+  command: >
+    flatpak remote-add --if-not-exists flathub
+    https://dl.flathub.org/repo/flathub.flatpakrepo
+
+- name: Install Flatpak applications
+  command: "flatpak install --system --noninteractive flathub {{ item }}"
+  loop:
+    - app.zen_browser.zen
+    - com.bitwarden.desktop
+    - md.obsidian.Obsidian
+    - org.telegram.desktop
+    - org.zulip.Zulip
+    - org.localsend.localsend_app

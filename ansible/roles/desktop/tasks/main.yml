@@ -1,0 +1,67 @@
+---
+- name: Install Xorg
+  pacman:
+    name:
+      - xorg-server
+      - xorg-xinit
+      - xorg-xrandr
+    state: present
+
+- name: Install NVIDIA drivers
+  pacman:
+    name:
+      - nvidia-open
+      - nvidia-utils
+      - nvidia-settings
+    state: present
+
+- name: Configure NVIDIA early KMS modules
+  lineinfile:
+    path: /etc/mkinitcpio.conf
+    regexp: "^MODULES="
+    line: "MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)"
+  register: mkinitcpio_modules
+
+- name: Regenerate initramfs
+  command: mkinitcpio -P
+  when: mkinitcpio_modules.changed
+
+- name: Install Cinnamon and supporting packages
+  pacman:
+    name:
+      - cinnamon
+      - nemo
+      - nemo-fileroller
+      - lightdm
+      - lightdm-gtk-greeter
+    state: present
+
+- name: Create autologin group
+  group:
+    name: autologin
+    state: present
+
+- name: Add user to autologin group
+  user:
+    name: "{{ username }}"
+    groups: autologin
+    append: true
+
+- name: Configure LightDM autologin-user
+  lineinfile:
+    path: /etc/lightdm/lightdm.conf
+    regexp: "^#?autologin-user="
+    line: "autologin-user={{ username }}"
+    insertafter: "^\\[Seat:\\*\\]"
+
+- name: Configure LightDM autologin-session
+  lineinfile:
+    path: /etc/lightdm/lightdm.conf
+    regexp: "^#?autologin-session="
+    line: "autologin-session=cinnamon"
+    insertafter: "^\\[Seat:\\*\\]"
+
+- name: Enable LightDM
+  systemd:
+    name: lightdm
+    enabled: true

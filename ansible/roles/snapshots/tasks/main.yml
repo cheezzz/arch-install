@@ -1,0 +1,57 @@
+---
+- name: Install snapshot packages
+  pacman:
+    name:
+      - snapper
+      - snap-pac
+    state: present
+
+- name: Create snapper config for root
+  command: snapper -c root create-config /
+  args:
+    creates: /etc/snapper/configs/root
+
+- name: Remove snapper's auto-created .snapshots subvolume
+  command: btrfs subvolume delete /.snapshots
+  register: subvol_delete
+  failed_when:
+    - subvol_delete.rc != 0
+    - "'not a btrfs subvolume' not in subvol_delete.stderr"
+    - "'No such file' not in subvol_delete.stderr"
+
+- name: Recreate .snapshots mount point
+  file:
+    path: /.snapshots
+    state: directory
+
+- name: Remount @snapshots subvolume
+  mount:
+    path: /.snapshots
+    src: "{{ disk }}p2"
+    fstype: btrfs
+    opts: "subvol=@snapshots,compress=zstd:1,noatime,space_cache=v2,ssd"
+    state: mounted
+
+- name: Configure snapper timeline settings
+  lineinfile:
+    path: /etc/snapper/configs/root
+    regexp: "^{{ item.key }}="
+    line: '{{ item.key }}="{{ item.value }}"'
+  loop:
+    - { key: "TIMELINE_CREATE", value: "yes" }
+    - { key: "TIMELINE_CLEANUP", value: "yes" }
+    - { key: "NUMBER_LIMIT", value: "10" }
+    - { key: "TIMELINE_LIMIT_HOURLY", value: "5" }
+    - { key: "TIMELINE_LIMIT_DAILY", value: "7" }
+    - { key: "TIMELINE_LIMIT_WEEKLY", value: "2" }
+    - { key: "TIMELINE_LIMIT_MONTHLY", value: "1" }
+
+- name: Enable snapper-timeline timer
+  systemd:
+    name: snapper-timeline.timer
+    enabled: true
+
+- name: Enable snapper-cleanup timer
+  systemd:
+    name: snapper-cleanup.timer
+    enabled: true
