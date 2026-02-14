@@ -144,13 +144,22 @@
   become_user: "{{ username }}"
   become_method: su
 
-- name: Build and install {{ aur_helper }}
-  command: makepkg -si --noconfirm
+- name: Install {{ aur_helper }} build dependencies
+  pacman:
+    name:
+      - cargo
+    state: present
+
+- name: Build {{ aur_helper }}
+  command: makepkg --noconfirm
   args:
     chdir: "/tmp/{{ aur_helper }}"
   become: true
   become_user: "{{ username }}"
   become_method: su
+
+- name: Install {{ aur_helper }} package
+  shell: pacman -U --noconfirm /tmp/{{ aur_helper }}/*.pkg.tar.zst
 
 - name: Clean up {{ aur_helper }} build directory
   file:
