@@ -16,7 +16,7 @@
 - name: Enable multilib repository
   replace:
     path: /etc/pacman.conf
-    regexp: '^#\[multilib\]\n#Include = /etc/pacman.d/mirrorlist'
+    regexp: '#\[multilib\]\n#Include = /etc/pacman.d/mirrorlist'
     replace: '[multilib]\nInclude = /etc/pacman.d/mirrorlist'
 
 - name: Update pacman database after config changes
@@ -131,28 +131,28 @@
       - bun
     state: present
 
-# --- AUR helper (paru) ---
+# --- AUR helper ---
 
-- name: Clone paru from AUR
+- name: Clone {{ aur_helper }} from AUR
   git:
-    repo: https://aur.archlinux.org/paru.git
-    dest: "/tmp/paru"
+    repo: "https://aur.archlinux.org/{{ aur_helper }}.git"
+    dest: "/tmp/{{ aur_helper }}"
     version: master
   become: true
   become_user: "{{ username }}"
   become_method: su
 
-- name: Build and install paru
+- name: Build and install {{ aur_helper }}
   command: makepkg -si --noconfirm
   args:
-    chdir: /tmp/paru
+    chdir: "/tmp/{{ aur_helper }}"
   become: true
   become_user: "{{ username }}"
   become_method: su
 
-- name: Clean up paru build directory
+- name: Clean up {{ aur_helper }} build directory
   file:
-    path: /tmp/paru
+    path: "/tmp/{{ aur_helper }}"
     state: absent
 
 # --- Claude Code ---

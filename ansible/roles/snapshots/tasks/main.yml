@@ -6,6 +6,16 @@
       - snap-pac
     state: present
 
+- name: Unmount /.snapshots before snapper setup
+  mount:
+    path: /.snapshots
+    state: unmounted
+
+- name: Remove /.snapshots directory
+  file:
+    path: /.snapshots
+    state: absent
+
 - name: Create snapper config for root
   command: snapper -c root create-config /
   args:
@@ -24,7 +34,7 @@
     path: /.snapshots
     state: directory
 
-- name: Remount @snapshots subvolume
+- name: Mount @snapshots subvolume and update fstab
   mount:
     path: /.snapshots
     src: "{{ disk }}p2"

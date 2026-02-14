@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DISK="/dev/nvme0n1"
 MOUNT="/mnt"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VARS_FILE="${SCRIPT_DIR}/ansible/vars/main.yml"
 BTRFS_OPTS="compress=zstd:1,noatime,space_cache=v2,ssd"
+
+# Read disk from vars
+DISK="$(grep '^disk:' "${VARS_FILE}" | awk '{print $2}')"
+[[ -z "${DISK}" ]] && { printf '\n\e[1;31m!! disk is not set in %s\e[0m\n' "${VARS_FILE}" >&2; exit 1; }
 
 # --- Helper functions ---
 msg() { printf '\n\e[1;34m>> %s\e[0m\n' "$1"; }
