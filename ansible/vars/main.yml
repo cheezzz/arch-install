@@ -6,3 +6,5 @@ timezone: Africa/Johannesburg
 locale: en_ZA.UTF-8
 keymap: us
 aur_helper: paru
+nvidia_gpu: true
+separate_home: true

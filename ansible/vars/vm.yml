@@ -1,0 +1,10 @@
+disk: /dev/vda
+home_device: none
+hostname: linux
+username: johlan
+timezone: Africa/Johannesburg
+locale: en_ZA.UTF-8
+keymap: us
+aur_helper: paru
+nvidia_gpu: false
+separate_home: false

@@ -18,7 +18,8 @@
   lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX="[^"]*"'
-    line: 'GRUB_CMDLINE_LINUX="rootflags=subvol=@ nvidia-drm.modeset=1"'
+    line: >-
+      GRUB_CMDLINE_LINUX="rootflags=subvol=@{{ ' nvidia-drm.modeset=1' if nvidia_gpu | default(true) else '' }}"
 
 - name: Enable GRUB_DISABLE_SUBMENU
   lineinfile:

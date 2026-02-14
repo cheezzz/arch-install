@@ -62,7 +62,7 @@
     groups: wheel
     append: true
     shell: /bin/bash
-    create_home: false
+    create_home: "{{ not (separate_home | default(true)) }}"
 
 - name: Set user password
   user:

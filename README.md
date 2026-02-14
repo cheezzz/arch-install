@@ -50,6 +50,25 @@ NVIDIA, Cinnamon, and snapper snapshots.
 - **Fonts**: Inter, Noto, JetBrains Mono Nerd Font with macOS-like rendering
 - **Swap**: zram (no swap partition)
 
+## VM Testing
+
+A VM-compatible mode is included for testing in QEMU/KVM.
+
+1. Create a VM with UEFI (OVMF), single virtio disk, 4GB+ RAM
+2. Boot the Arch ISO, clone the repo
+3. Copy VM vars over the default:
+   ```
+   cp ansible/vars/vm.yml ansible/vars/main.yml
+   ```
+4. Run `bash bootstrap.sh` — partitions `/dev/vda`, skips separate `/home` mount
+5. Chroot and run the playbook as usual — skips NVIDIA, creates `/home` on root
+
+Key differences from production:
+- Disk: `/dev/vda` (partitions `vda1`, `vda2`) instead of NVMe
+- No separate home drive — `/home` lives on the root partition
+- No NVIDIA drivers or kernel modules
+- GRUB cmdline omits `nvidia-drm.modeset=1`
+
 ## Configuration
 
 All settings are in `ansible/vars/main.yml`. No values are hardcoded in
