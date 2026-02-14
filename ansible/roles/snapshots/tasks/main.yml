@@ -37,7 +37,7 @@
 - name: Mount @snapshots subvolume and update fstab
   mount:
     path: /.snapshots
-    src: "{{ disk }}p2"
+    src: "{{ disk + 'p2' if 'nvme' in disk or 'mmcblk' in disk else disk + '2' }}"
     fstype: btrfs
     opts: "subvol=@snapshots,compress=zstd:1,noatime,space_cache=v2,ssd"
     state: mounted
