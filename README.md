@@ -45,6 +45,8 @@ NVIDIA, Cinnamon, and snapper snapshots.
 - **Snapshots**: Snapper with automatic timeline and pacman hooks
 - **Audio**: PipeWire (socket-activated)
 - **Desktop**: Cinnamon on Xorg with NVIDIA (nvidia-open), LightDM autologin
+- **Network**: Bridged NM connections + VLAN for VMs (optional)
+- **Virtualization**: KVM, libvirt, virt-manager (optional)
 - **Packages**: Common tools, dev tools (bun, uv, aws-cli), Claude Code,
   Flatpak apps (Zen Browser, Bitwarden, Obsidian, Telegram, Zulip, LocalSend)
 - **Fonts**: Inter, Noto, JetBrains Mono Nerd Font with macOS-like rendering
@@ -67,6 +69,7 @@ Key differences from production:
 - Disk: `/dev/vda` (partitions `vda1`, `vda2`) instead of NVMe
 - No separate home drive — `/home` lives on the root partition
 - No NVIDIA drivers or kernel modules
+- No bridged networking or virtualization packages
 - GRUB cmdline omits `nvidia-drm.modeset=1`
 
 ## Configuration
