@@ -15,7 +15,7 @@ NVIDIA, Cinnamon, and snapper snapshots.
 2. Connect ethernet
 3. Clone this repo:
    ```
-   git clone <repo-url>
+   git clone https://github.com/cheezzz/arch-install.git
    cd arch-install
    ```
 4. Edit `ansible/vars/main.yml` — set `home_device` to the correct device path
