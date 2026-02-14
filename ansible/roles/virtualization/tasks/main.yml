@@ -1,0 +1,24 @@
+---
+- name: Install virtualization packages
+  pacman:
+    name:
+      - qemu-desktop
+      - libvirt
+      - virt-manager
+      - dnsmasq
+      - edk2-ovmf
+    state: present
+  when: enable_virtualization | default(false)
+
+- name: Enable libvirtd
+  systemd:
+    name: libvirtd
+    enabled: true
+  when: enable_virtualization | default(false)
+
+- name: Add {{ username }} to libvirt group
+  user:
+    name: "{{ username }}"
+    groups: libvirt
+    append: true
+  when: enable_virtualization | default(false)

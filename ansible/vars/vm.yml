@@ -8,3 +8,7 @@ keymap: us
 aur_helper: paru
 nvidia_gpu: false
 separate_home: false
+bridge_interface: enp1s0
+vlan_id: 20
+enable_bridge_network: false
+enable_virtualization: false

@@ -1,0 +1,73 @@
+---
+- name: Create nm-bridge connection
+  copy:
+    dest: /etc/NetworkManager/system-connections/nm-bridge.nmconnection
+    mode: "0600"
+    content: |
+      [connection]
+      id=nm-bridge
+      uuid={{ (hostname + '-nm-bridge') | to_uuid }}
+      type=bridge
+      interface-name=nm-bridge
+
+      [bridge]
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      method=auto
+  when: enable_bridge_network | default(false)
+
+- name: Create nm-bridge-slave connection
+  copy:
+    dest: /etc/NetworkManager/system-connections/nm-bridge-slave.nmconnection
+    mode: "0600"
+    content: |
+      [connection]
+      id=nm-bridge-slave
+      uuid={{ (hostname + '-nm-bridge-slave') | to_uuid }}
+      type=ethernet
+      interface-name={{ bridge_interface }}
+      master=nm-bridge
+      slave-type=bridge
+
+      [ethernet]
+  when: enable_bridge_network | default(false)
+
+- name: Create br-vlan{{ vlan_id }} connection
+  copy:
+    dest: "/etc/NetworkManager/system-connections/br-vlan{{ vlan_id }}.nmconnection"
+    mode: "0600"
+    content: |
+      [connection]
+      id=br-vlan{{ vlan_id }}
+      uuid={{ (hostname + '-br-vlan' + (vlan_id | string)) | to_uuid }}
+      type=bridge
+      interface-name=br-vlan{{ vlan_id }}
+
+      [bridge]
+
+      [ipv4]
+      method=disabled
+
+      [ipv6]
+      method=disabled
+  when: enable_bridge_network | default(false)
+
+- name: Create vlan-{{ vlan_id }} connection
+  copy:
+    dest: "/etc/NetworkManager/system-connections/vlan-{{ vlan_id }}.nmconnection"
+    mode: "0600"
+    content: |
+      [connection]
+      id=vlan-{{ vlan_id }}
+      uuid={{ (hostname + '-vlan-' + (vlan_id | string)) | to_uuid }}
+      type=vlan
+      master=br-vlan{{ vlan_id }}
+      slave-type=bridge
+
+      [vlan]
+      id={{ vlan_id }}
+      parent={{ bridge_interface }}
+  when: enable_bridge_network | default(false)

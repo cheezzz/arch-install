@@ -16,4 +16,6 @@
     - snapshots
     - audio
     - desktop
+    - network
+    - virtualization
     - packages
