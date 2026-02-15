@@ -147,6 +147,15 @@
       - docker-compose
     state: present
 
+- name: Mount Docker drive
+  mount:
+    path: /docker
+    src: "{{ docker_device }}"
+    fstype: btrfs
+    opts: noatime,ssd,space_cache=v2,compress=zstd
+    state: mounted
+  when: docker_device | default('none') != 'none'
+
 - name: Enable Docker service
   systemd:
     name: docker.service
