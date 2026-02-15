@@ -28,7 +28,7 @@ For VM testing, copy VM vars first: `cp ansible/vars/vm.yml ansible/vars/main.ym
 
 **All configuration lives in `ansible/vars/main.yml`** — no hardcoded values in roles or the playbook. The `vm.yml` variant disables NVIDIA, separate home drive, bridge networking, and virtualization for QEMU/KVM testing.
 
-**Key variables:** `disk`, `home_device`, `hostname`, `username`, `timezone`, `locale`, `keymap`, `aur_helper`, `nvidia_gpu`, `separate_home`, `bridge_interface`, `vlan_id`, `enable_bridge_network`, `enable_virtualization`
+**Key variables:** `disk`, `home_device`, `hostname`, `username`, `timezone`, `locale`, `keymap`, `aur_helper`, `nvidia_gpu`, `separate_home`, `docker_device`, `bridge_interface`, `vlan_id`, `enable_bridge_network`, `enable_virtualization`
 
 ## Ansible Roles
 
@@ -41,7 +41,7 @@ For VM testing, copy VM vars first: `cp ansible/vars/vm.yml ansible/vars/main.ym
 | `desktop` | Xorg, conditional NVIDIA drivers + early KMS, Cinnamon, LightDM autologin |
 | `network` | NM keyfiles for bridged networking + VLAN, gated on `enable_bridge_network` |
 | `virtualization` | KVM/libvirt/virt-manager stack, gated on `enable_virtualization` |
-| `packages` | Pacman config, zram, fonts + fontconfig, common tools, dev tools, AUR helper (paru), Claude Code, Flatpak apps |
+| `packages` | Pacman config, zram, fonts + fontconfig, common tools, dev tools, Docker + `/docker` mount, AUR helper (paru), Claude Code, Flatpak apps |
 
 ## Critical Constraints
 
