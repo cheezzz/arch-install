@@ -109,7 +109,18 @@
       - rofi
       - atuin
       - restic
+      - nfs-utils
+      - openssh
+      - man-db
+      - man-pages
+      - rsync
+      - fastfetch
     state: present
+
+- name: Enable SSH server
+  systemd:
+    name: sshd.service
+    enabled: true
 
 # --- Applications ---
 
@@ -132,7 +143,20 @@
       - aws-cli-v2
       - uv
       - bun
+      - docker
+      - docker-compose
     state: present
+
+- name: Enable Docker service
+  systemd:
+    name: docker.service
+    enabled: true
+
+- name: Add user to docker group
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: true
 
 # --- AUR helper ---
 
