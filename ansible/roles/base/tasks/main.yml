@@ -80,3 +80,8 @@
   systemd:
     name: NetworkManager
     enabled: true
+
+- name: Enable periodic TRIM for SSDs
+  systemd:
+    name: fstrim.timer
+    enabled: true

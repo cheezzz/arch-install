@@ -14,7 +14,7 @@
       - nvidia-utils
       - nvidia-settings
     state: present
-  when: nvidia_gpu | default(true)
+  when: nvidia_gpu | default(false)
 
 - name: Configure NVIDIA early KMS modules
   lineinfile:
@@ -22,11 +22,11 @@
     regexp: "^MODULES="
     line: "MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)"
   register: mkinitcpio_modules
-  when: nvidia_gpu | default(true)
+  when: nvidia_gpu | default(false)
 
 - name: Regenerate initramfs
   command: mkinitcpio -P
-  when: nvidia_gpu | default(true) and mkinitcpio_modules.changed
+  when: nvidia_gpu | default(false) and mkinitcpio_modules.changed
 
 - name: Install Cinnamon and supporting packages
   pacman:
