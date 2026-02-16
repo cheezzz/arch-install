@@ -103,7 +103,7 @@ reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
 msg "Installing base system with pacstrap"
 
 pacstrap -K "${MOUNT}" \
-    base base-devel linux linux-headers linux-firmware \
+    base base-devel linux-lts linux-lts-headers linux-firmware \
     intel-ucode btrfs-progs ansible python-passlib git zsh
 
 # --- Step 8: Generate fstab ---

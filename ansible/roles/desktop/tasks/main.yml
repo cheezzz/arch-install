@@ -10,7 +10,7 @@
 - name: Install NVIDIA drivers
   pacman:
     name:
-      - nvidia-open
+      - nvidia-open-lts
       - nvidia-utils
       - nvidia-settings
     state: present
