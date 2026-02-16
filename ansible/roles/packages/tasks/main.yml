@@ -252,6 +252,12 @@
 
 # --- Docker configuration ---
 
+- name: Ensure /etc/docker directory exists
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
 - name: Configure Docker daemon
   copy:
     content: "{{ _config | to_nice_json }}\n"
