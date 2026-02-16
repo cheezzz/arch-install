@@ -147,10 +147,16 @@
       - docker-compose
     state: present
 
+- name: Get UUID of data device
+  command: "blkid -s UUID -o value {{ data_device }}"
+  register: data_device_uuid
+  changed_when: false
+  when: data_device | default('none') != 'none'
+
 - name: Mount /data/docker
   mount:
     path: /data/docker
-    src: "{{ data_device }}"
+    src: "UUID={{ data_device_uuid.stdout }}"
     fstype: btrfs
     opts: subvol=@docker,noatime,ssd,space_cache=v2
     state: mounted
@@ -159,7 +165,7 @@
 - name: Mount /data/volumes
   mount:
     path: /data/volumes
-    src: "{{ data_device }}"
+    src: "UUID={{ data_device_uuid.stdout }}"
     fstype: btrfs
     opts: subvol=@volumes,noatime,ssd,space_cache=v2,compress=zstd
     state: mounted
@@ -168,7 +174,7 @@
 - name: Mount /data/vms
   mount:
     path: /data/vms
-    src: "{{ data_device }}"
+    src: "UUID={{ data_device_uuid.stdout }}"
     fstype: btrfs
     opts: subvol=@vms,noatime,ssd,nodatacow
     state: mounted
@@ -177,7 +183,7 @@
 - name: Mount /data/.snapshots
   mount:
     path: /data/.snapshots
-    src: "{{ data_device }}"
+    src: "UUID={{ data_device_uuid.stdout }}"
     fstype: btrfs
     opts: subvol=@snapshots,noatime,ssd,space_cache=v2,compress=zstd
     state: mounted

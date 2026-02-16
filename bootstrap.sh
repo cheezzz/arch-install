@@ -95,24 +95,28 @@ if [[ "${SEPARATE_HOME}" == "true" ]]; then
     mount -o "${BTRFS_OPTS},subvol=@home" "${HOME_DEVICE}" "${MOUNT}/home"
 fi
 
-# --- Step 6: Pacstrap base system ---
+# --- Step 6: Optimize mirror list ---
+msg "Optimizing mirror list"
+reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
+
+# --- Step 7: Pacstrap base system ---
 msg "Installing base system with pacstrap"
 
 pacstrap -K "${MOUNT}" \
     base base-devel linux linux-headers linux-firmware \
     intel-ucode btrfs-progs ansible python-passlib git zsh
 
-# --- Step 7: Generate fstab ---
+# --- Step 8: Generate fstab ---
 msg "Generating fstab"
 
 genfstab -U "${MOUNT}" >> "${MOUNT}/etc/fstab"
 
-# --- Step 8: Copy repo into chroot ---
+# --- Step 9: Copy repo into chroot ---
 msg "Copying repo into chroot"
 
 cp -r "${SCRIPT_DIR}" "${MOUNT}/root/arch-install"
 
-# --- Step 9: Print next steps ---
+# --- Step 10: Print next steps ---
 msg "Bootstrap complete!"
 
 echo ""

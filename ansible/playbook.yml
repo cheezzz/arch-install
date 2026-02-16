@@ -10,6 +10,14 @@
       prompt: "Password (used for both root and {{ username }})"
       private: true
       confirm: true
+  pre_tasks:
+    - name: Validate data_device is configured
+      assert:
+        that:
+          - data_device != '/dev/sdX'
+        fail_msg: "data_device is still set to /dev/sdX — edit ansible/vars/main.yml before running"
+      when: data_device | default('none') != 'none'
+
   roles:
     - base
     - bootloader
