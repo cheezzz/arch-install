@@ -10,6 +10,6 @@ nvidia_gpu: false
 separate_home: false
 bridge_interface: enp1s0
 vlan_id: 20
-docker_device: none
+data_device: none
 enable_bridge_network: false
 enable_virtualization: false

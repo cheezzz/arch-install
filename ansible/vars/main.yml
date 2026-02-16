@@ -10,6 +10,6 @@ nvidia_gpu: true
 separate_home: true
 bridge_interface: enp3s0
 vlan_id: 20
-docker_device: /dev/sdX         # operator fills this in before running
+data_device: /dev/sdX            # operator fills this in before running
 enable_bridge_network: true
 enable_virtualization: true

@@ -147,19 +147,41 @@
       - docker-compose
     state: present
 
-- name: Mount Docker drive
+- name: Mount /data/docker
   mount:
-    path: /docker
-    src: "{{ docker_device }}"
+    path: /data/docker
+    src: "{{ data_device }}"
     fstype: btrfs
-    opts: noatime,ssd,space_cache=v2,compress=zstd
+    opts: subvol=@docker,noatime,ssd,space_cache=v2
     state: mounted
-  when: docker_device | default('none') != 'none'
+  when: data_device | default('none') != 'none'
 
-- name: Enable Docker service
-  systemd:
-    name: docker.service
-    enabled: true
+- name: Mount /data/volumes
+  mount:
+    path: /data/volumes
+    src: "{{ data_device }}"
+    fstype: btrfs
+    opts: subvol=@volumes,noatime,ssd,space_cache=v2,compress=zstd
+    state: mounted
+  when: data_device | default('none') != 'none'
+
+- name: Mount /data/vms
+  mount:
+    path: /data/vms
+    src: "{{ data_device }}"
+    fstype: btrfs
+    opts: subvol=@vms,noatime,ssd,nodatacow
+    state: mounted
+  when: data_device | default('none') != 'none'
+
+- name: Mount /data/.snapshots
+  mount:
+    path: /data/.snapshots
+    src: "{{ data_device }}"
+    fstype: btrfs
+    opts: subvol=@snapshots,noatime,ssd,space_cache=v2,compress=zstd
+    state: mounted
+  when: data_device | default('none') != 'none'
 
 - name: Add user to docker group
   user:
@@ -199,6 +221,58 @@
   file:
     path: "/tmp/{{ aur_helper }}"
     state: absent
+
+# --- nvidia-container-toolkit ---
+
+- name: Allow passwordless sudo for AUR installs
+  copy:
+    content: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
+    dest: /etc/sudoers.d/99-temp-aur
+    mode: '0440'
+  when: nvidia_gpu | default(false)
+
+- name: Install nvidia-container-toolkit via paru
+  command: paru -S --noconfirm nvidia-container-toolkit
+  become: true
+  become_user: "{{ username }}"
+  become_method: su
+  when: nvidia_gpu | default(false)
+
+- name: Remove temporary passwordless sudo
+  file:
+    path: /etc/sudoers.d/99-temp-aur
+    state: absent
+  when: nvidia_gpu | default(false)
+
+# --- Docker configuration ---
+
+- name: Configure Docker daemon
+  copy:
+    content: "{{ _config | to_nice_json }}\n"
+    dest: /etc/docker/daemon.json
+  vars:
+    _base:
+      data-root: /data/docker
+      dns:
+        - "192.168.2.106"
+      dns-opts:
+        - "ndots:0"
+      log-driver: json-file
+      log-opts:
+        max-size: "100m"
+        max-file: "3"
+    _nvidia:
+      runtimes:
+        nvidia:
+          args: []
+          path: nvidia-container-runtime
+    _config: "{{ _base | combine(_nvidia if (nvidia_gpu | default(false)) else {}) }}"
+  when: data_device | default('none') != 'none'
+
+- name: Enable Docker service
+  systemd:
+    name: docker.service
+    enabled: true
 
 # --- Claude Code ---
 

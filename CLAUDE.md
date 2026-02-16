@@ -28,7 +28,7 @@ For VM testing, copy VM vars first: `cp ansible/vars/vm.yml ansible/vars/main.ym
 
 **All configuration lives in `ansible/vars/main.yml`** — no hardcoded values in roles or the playbook. The `vm.yml` variant disables NVIDIA, separate home drive, bridge networking, and virtualization for QEMU/KVM testing.
 
-**Key variables:** `disk`, `home_device`, `hostname`, `username`, `timezone`, `locale`, `keymap`, `aur_helper`, `nvidia_gpu`, `separate_home`, `docker_device`, `bridge_interface`, `vlan_id`, `enable_bridge_network`, `enable_virtualization`
+**Key variables:** `disk`, `home_device`, `hostname`, `username`, `timezone`, `locale`, `keymap`, `aur_helper`, `nvidia_gpu`, `separate_home`, `data_device`, `bridge_interface`, `vlan_id`, `enable_bridge_network`, `enable_virtualization`
 
 ## Ansible Roles
 
@@ -41,12 +41,12 @@ For VM testing, copy VM vars first: `cp ansible/vars/vm.yml ansible/vars/main.ym
 | `desktop` | Xorg, conditional NVIDIA drivers + early KMS, Cinnamon, LightDM autologin |
 | `network` | NM keyfiles for bridged networking + VLAN, gated on `enable_bridge_network` |
 | `virtualization` | KVM/libvirt/virt-manager stack, gated on `enable_virtualization` |
-| `packages` | Pacman config, zram, fonts + fontconfig, common tools, dev tools, Docker + `/docker` mount, AUR helper (paru), Claude Code, Flatpak apps |
+| `packages` | Pacman config, zram, fonts + fontconfig, common tools, dev tools, Docker + `/data/*` mounts, AUR helper (paru), nvidia-container-toolkit, Claude Code, Flatpak apps |
 
 ## Critical Constraints
 
-- **Never format, partition, or modify the home drive** — it's a separate physical drive with existing data
-- `home_device` has no safe default; must fail clearly if unset (prevents accidental data loss)
+- **Never format, partition, or modify the home or data drives** — they are separate physical drives with existing data
+- `home_device` and `data_device` have no safe defaults; must fail clearly if unset (prevents accidental data loss)
 - NVIDIA-related tasks are gated on `nvidia_gpu` variable (false for VMs)
 - `separate_home` controls whether `/home` mounts from a separate drive or lives on root
 - Ansible runs inside arch-chroot against localhost, not over SSH

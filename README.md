@@ -19,8 +19,8 @@ NVIDIA, Cinnamon, and snapper snapshots.
    cd arch-install
    ```
 4. Edit `ansible/vars/main.yml` — set `home_device` to the correct device path
-   for your `/home` drive (e.g., `/dev/sda1`) and `docker_device` to the drive
-   for `/docker` (e.g., `/dev/sdb1`), or `none` to skip
+   for your `/home` drive (e.g., `/dev/sda1`) and `data_device` to the drive
+   for `/data` (e.g., `/dev/sdb1`), or `none` to skip
 5. Run the bootstrap script:
    ```
    bash bootstrap.sh
@@ -48,9 +48,9 @@ NVIDIA, Cinnamon, and snapper snapshots.
 - **Desktop**: Cinnamon on Xorg with NVIDIA (nvidia-open), LightDM autologin
 - **Network**: Bridged NM connections + VLAN for VMs (optional)
 - **Virtualization**: KVM, libvirt, virt-manager (optional)
-- **Packages**: Common tools, dev tools (bun, uv, aws-cli), Docker + `/docker`
-  mount, Claude Code, Flatpak apps (Zen Browser, Bitwarden, Obsidian, Telegram,
-  Zulip, LocalSend)
+- **Packages**: Common tools, dev tools (bun, uv, aws-cli), Docker + `/data/*`
+  mounts, nvidia-container-toolkit, Claude Code, Flatpak apps (Zen Browser,
+  Bitwarden, Obsidian, Telegram, Zulip, LocalSend)
 - **Fonts**: Inter, Noto, JetBrains Mono Nerd Font with macOS-like rendering
 - **Swap**: zram (no swap partition)
 
