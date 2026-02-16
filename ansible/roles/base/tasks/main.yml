@@ -61,7 +61,7 @@
     name: "{{ username }}"
     groups: wheel
     append: true
-    shell: /bin/bash
+    shell: /bin/zsh
     create_home: "{{ not (separate_home | default(true)) }}"
 
 - name: Set user password
