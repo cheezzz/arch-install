@@ -13,6 +13,7 @@
     --target=x86_64-efi
     --efi-directory=/boot/efi
     --bootloader-id=GRUB
+    --removable
 
 - name: Set GRUB_CMDLINE_LINUX
   lineinfile:
