@@ -132,6 +132,8 @@
   file:
     path: /var/log/backup
     state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
     mode: '0755'
 
 - name: Install btrfs-snapshot systemd units
